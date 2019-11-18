@@ -31,4 +31,10 @@ class PostController extends Controller
         $post->update($request->all());
         return response()->json($post, 200);
     }
+
+    public function destroy(Post $post)
+    {
+        $post->delete();
+        return response()->json(null, 200);
+    }
 }
