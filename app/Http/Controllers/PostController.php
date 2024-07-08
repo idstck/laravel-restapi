@@ -7,7 +7,8 @@ use App\Http\Resources\Post\PostResource;
 use App\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use DB;
+// use DB;
+use Illuminate\Support\Facades\DB;
 
 class PostController extends Controller
 {
@@ -23,24 +24,22 @@ class PostController extends Controller
         //     var_dump($query->sql);
         // });
 
-        $data = Post::with(['user', ])->paginate(4);
-        return new PostCollection($data);
-        // return response()->json(new PostCollection($data), 200);
+        $data = Post::with(['user'])->paginate(5); // eager load
+        return new PostCollection(($data));
+        // return response()->json($data, 200);
     }
 
-    public function show($id)
+    public function show(Post $post)
     {
-        $data = Post::find($id);
-
-        if (is_null($data)) {
+        // $data = Post::find($id);
+        if (is_null($post)) {
             return response()->json([
-                'message' => 'Resource not found!'
+                'message' => 'Post not found'
             ], 404);
         }
 
-        // return $data;
-
-        return response()->json(new PostResource($data), 200);
+        return new PostResource($post);
+        // return response()->json($post, 200);
     }
 
     public function store(Request $request)
@@ -48,7 +47,7 @@ class PostController extends Controller
         $data = $request->all();
 
         $validator = Validator::make($data, [
-            'title' => ['required', 'min:5']
+            'title' => ['required', 'min:5'],
         ]);
 
         if ($validator->fails()) {
@@ -59,7 +58,6 @@ class PostController extends Controller
 
         // $response = Post::create($data);
         $response = request()->user()->posts()->create($data);
-
         return response()->json($response, 201);
     }
 
